@@ -16,11 +16,11 @@ BEGIN
     name = project_name;
 
   -- if it does not exist insert new project_name into project tabel
-  IF project_count = 0 THEN
-  INSERT INTO
-    projects(name)
-  VALUES
-    (project_name);
+  IF project_exists = 0 THEN
+    INSERT INTO
+      projects(name)
+    VALUES
+      (project_name);
   END IF;
 
   SELECT
