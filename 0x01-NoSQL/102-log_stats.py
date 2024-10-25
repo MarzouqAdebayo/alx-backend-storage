@@ -22,6 +22,16 @@ def print_nginx_request_logs(nginx_collection):
         list(nginx_collection.find({"method": "GET", "path": "/status"}))
     )
     print("{} status check".format(status_checks_count))
+    pipeline = [
+        {"$group": {"_id": "$ip", "total_requests": {"$sum": 1}}},
+        {"$sort": {"total_requests": -1}},
+        {"$limit": 10},
+    ]
+    request_logs = nginx_collection.aggregate(pipeline)
+    for request_log in request_logs:
+        ip_address = request_log.get("_id")
+        request_count_from_ip_address = request_log.get("total_requests")
+        print("\t{}: {}".format(ip_address, request_count_from_ip_address))
 
 
 def run():
