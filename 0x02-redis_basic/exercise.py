@@ -14,6 +14,6 @@ class Cache:
 
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Stores a value in redis and returns the key"""
-        key = uuid.uuidv4()
+        key = str(uuid.uuidv4())
         self._redis.set(key, data)
         return key
