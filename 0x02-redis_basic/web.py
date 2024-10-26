@@ -9,7 +9,7 @@ import requests
 store = redis.Redis()
 
 
-def track_url_access(fn: Callable) -> Callable:
+def cache_url(fn: Callable) -> Callable:
     """Counts the number of times a method is called"""
 
     @wraps(fn)
@@ -27,7 +27,7 @@ def track_url_access(fn: Callable) -> Callable:
     return wrapper
 
 
-@track_url_access
+@cache_url
 def get_page(url: str) -> str:
     """Return the content of a url and
     tracks the number of times it was access and also caches its result"""
