@@ -15,14 +15,15 @@ def cache_url(fn: Callable) -> Callable:
     @wraps(fn)
     def wrapper(url: str) -> str:
         """Increments call counter, then returns method call"""
-        if (store.exists("count:{}".format(url)) and
-                store.exists("result:{}".format(url))):
-            store.incr("count:{}".format(url))
-            result = store.get("result:{}".format(url))
+        count_key = "count:{}".format(url)
+        result_key = "result:{}".format(url)
+        if store.exists(count_key) and store.exists(result_key):
+            store.incr(count_key)
+            result = store.get(result_key)
             return result.decode("utf-8")
         result = fn(url)
-        store.set("count:{}".format(url), 1)
-        store.setex("result:{}".format(url), 10, result)
+        store.set(count_key, 1)
+        store.setex(result_key, 10, result)
         return result
 
     return wrapper
