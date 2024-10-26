@@ -94,10 +94,3 @@ class Cache:
     def get_int(self, key: str) -> int:
         """Gets and converts to int using get method"""
         return self.get(key, lambda x: int(x))
-
-
-cache = Cache()
-cache.store("foo")
-cache.store("bar")
-cache.store(42)
-replay(cache.store)
