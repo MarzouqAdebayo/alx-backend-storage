@@ -38,6 +38,33 @@ def call_history(method: Callable) -> Callable:
     return wrapper
 
 
+def replay(fn: Callable) -> None:
+    """Shows the call history of function fn"""
+    if not fn or not hasattr(fn, "__self__"):
+        return
+    store = getattr(fn, "_redis", None)
+    if not store or not isinstance(store, redis.Redis):
+        return
+    call_count = 0
+    input_key = "{}:inputs".format(fn.__qualname__)
+    output_key = "{}:outputs".format(fn.__qualname__)
+    # get the call count
+    if store.exists(fn.__qualname__):
+        call_count = int(store.get(fn.__qualname__))
+    print("{} was called {} times:".format(fn.__qualname__, call_count))
+    # get input list
+    input_list = store.lrange(input_key, 0, -1)
+    # get output list
+    output_list = store.lrange(output_key, 0, -1)
+    # replay
+    for input, output in zip(input_list, output_list):
+        print("{}(*{}) -> {}".format(
+            fn.__qualname__,
+            input.decode("utf-8"),
+            output
+        ))
+
+
 class Cache:
     """Represents a cache object for storing data in Redis"""
 
