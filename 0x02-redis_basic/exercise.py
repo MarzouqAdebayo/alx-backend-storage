@@ -35,7 +35,7 @@ def call_history(method: Callable) -> Callable:
             self._redis.rpush(output_key, output)
         return output
 
-    return wrapper()
+    return wrapper
 
 
 class Cache:
