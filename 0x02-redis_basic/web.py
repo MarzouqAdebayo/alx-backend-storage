@@ -9,18 +9,18 @@ import requests
 store = redis.Redis()
 
 
-def track_url_access(method: Callable) -> Callable:
+def track_url_access(fn: Callable) -> Callable:
     """Counts the number of times a method is called"""
 
-    @wraps(method)
+    @wraps(fn)
     def wrapper(url: str) -> str:
         """Increments call counter, then returns method call"""
         store.incr("count:{}".format(url))
         result = store.get("result:{}".format(url))
         if result:
             return result.decode("utf-8")
-        result = method(url)
-        store.set("count:{}".format(url))
+        result = fn(url)
+        store.set("count:{}".format(url), 0)
         store.setex("result:{}".format(url), 10, result)
         return result
 
