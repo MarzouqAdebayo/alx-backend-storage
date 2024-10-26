@@ -23,7 +23,7 @@ def call_history(method: Callable) -> Callable:
     """Store the input and output of a method call"""
 
     @wraps(method)
-    def wrapper(self, *args, **kwargs) -> Any:
+    def wrapper(self, *args, **kwargs) -> str:
         """Stores the input and output of method call and returns
         the output"""
         input_key = "{}:inputs".format(method.__qualname__)
