@@ -8,6 +8,7 @@ from functools import wraps
 
 def count_calls(method: Callable) -> Callable:
     """Counts the number of times a method is called"""
+
     @wraps(method)
     def wrapper(self, *args, **kwargs) -> Any:
         """Increments call counter, then returns method call"""
@@ -18,6 +19,25 @@ def count_calls(method: Callable) -> Callable:
     return wrapper
 
 
+def call_history(method: Callable) -> Callable:
+    """Store the input and output of a method call"""
+
+    @wraps(method)
+    def wrapper(self, *args, **kwargs) -> Any:
+        """Stores the input and output of method call and returns
+        the output"""
+        input_key = "{}:inputs".format(method.__qualname__)
+        output_key = "{}:outputs".format(method.__qualname__)
+        if isinstance(self._redis, redis.Redis):
+            self._redis.rpush(input_key, str(args))
+        output = method(self, *args, **kwargs)
+        if isinstance(self._redis, redis.Redis):
+            self._redis.rpush(output_key, output)
+        return output
+
+    return wrapper()
+
+
 class Cache:
     """Represents a cache object for storing data in Redis"""
 
@@ -25,6 +45,7 @@ class Cache:
         self._redis = redis.Redis()
         self._redis.flushdb(True)
 
+    @call_history
     @count_calls
     def store(self, data: Union[str, bytes, int, float]) -> str:
         """Stores a value in redis and returns the key"""
