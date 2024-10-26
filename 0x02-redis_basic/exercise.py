@@ -40,9 +40,9 @@ def call_history(method: Callable) -> Callable:
 
 def replay(fn: Callable) -> None:
     """Shows the call history of function fn"""
-    if not fn or not hasattr(fn, "__self__"):
+    if fn is None or not hasattr(fn, "__self__"):
         return
-    store = getattr(fn, "_redis", None)
+    store = getattr(fn.__self__, "_redis", None)
     if not store or not isinstance(store, redis.Redis):
         return
     call_count = 0
@@ -61,7 +61,7 @@ def replay(fn: Callable) -> None:
         print("{}(*{}) -> {}".format(
             fn.__qualname__,
             input.decode("utf-8"),
-            output
+            output.decode("utf-8")
         ))
 
 
@@ -94,3 +94,10 @@ class Cache:
     def get_int(self, key: str) -> int:
         """Gets and converts to int using get method"""
         return self.get(key, lambda x: int(x))
+
+
+cache = Cache()
+cache.store("foo")
+cache.store("bar")
+cache.store(42)
+replay(cache.store)
